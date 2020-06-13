@@ -1,0 +1,12 @@
+version: '3'
+services:
+  user_microservice:
+    build: .
+    env_file:
+     - .env
+    ports:
+     - ${APP_PORT}:${APP_PORT}
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+  node:
+    image: 'node'
