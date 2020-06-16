@@ -1,10 +1,10 @@
-var mongoose = require('mongoose');
-var gracefulShutdown;
-var dbURI = (process.env.APP_DB)? 'mongodb://'+process.env.APP_DB+'/work'
-  : 'mongodb://localhost:27017/work';
-if (process.env.NODE_ENV === 'production') {
-  dbURI = process.env.MONGOLAB_URI;
-}
+const mongoose = require('mongoose');
+const appRoot = require('app-root-path');
+const defaults = require(`${appRoot}/config/defaults`)
+
+let gracefulShutdown;
+const  dbURI = `mongodb://${process.env.APP_DB || defaults.db}/work`
+
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useCreateIndex', true);

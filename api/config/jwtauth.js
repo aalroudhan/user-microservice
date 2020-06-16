@@ -1,4 +1,6 @@
 const Creds = require('../models/credentials.model');
+const appRoot = require('app-root-path');
+const Utilities = require(`${appRoot}/utility/utilities`);
 const jwt = require('jwt-simple');
 
 
@@ -15,8 +17,8 @@ authenticate = function(req, res, next) {
   req.user = {};
 	if (token) {
 		try {
-			var decoded = jwt.decode(token, 'YOUR_SECRET_STRING');
-			var userFound = false
+			let decoded = jwt.decode(token, process.emitWarning.JWT_TOKEN || 'YOUR_SECRET_STRING');
+			let userFound = false
 			if (decoded.exp >= Date.now()) {
         res.end('Access token has expired', 400);
         return false;
@@ -25,22 +27,12 @@ authenticate = function(req, res, next) {
         return true;
 			}
 		} catch (err) {
-			res.status(401);
-        res.json({
-          "code: ": 101,
-          "localizedMessage": "This operation requires you to be logged in"
-      });
-      throw err;
-		}
+      Utilities.errResponse(err, res, 401, 101, 'This operation requires Authentication');
+    }
 	} else {
-	  res.status(401);
-      res.json({
-        "code: ": 101,
-        "localizedMessage": "This operation requires you to be logged in"
-    });
-    return false;
-	}
-
+	  Utilities.errResponse(null, res, 401, 101, 'This operation requires Authentication');
+  }
+  
 };
 
 module.exports.checkUserAccess = function(req, res, next){
@@ -55,12 +47,7 @@ module.exports.checkUserAccess = function(req, res, next){
         req.user = creds.user;
         next();
       }else{
-        res.status(401);
-        res.json({
-          "code: ": 101,
-          "localizedMessage": "you do not have access to view this profile"
-        });
-        return;
+        Utilities.errResponse(err, res, 401, 101,'you do not have access to view this profile');
       }
     }
   });
@@ -69,12 +56,12 @@ module.exports.checkUserAccess = function(req, res, next){
 
 module.exports.checkVendor = function(req, res, next){
   if(authenticate(req, res, next)){
-    var userId = req.currentUser;
+    let userId = req.currentUser;
     if(req.params.v_id){
       
       let id = req.params.v_id;
       Vendor.findById(id, function(err, vendor) {
-        var found = vendor.users.some(function (el) {
+        let found = vendor.users.some(function (el) {
           return el.user == userId;
         });
         if(found){
@@ -115,15 +102,9 @@ module.exports.checkVendorAccess = function(req, res, next){
       }
     });
   }else{
-    res.status(401);
-    res.json({
-      "code: ": 101,
-      "localizedMessage": "you do not have access to update this vendor commodities"
-    });
-    return;
+    Utilities.errResponse(err, res, 401, 102,'you do not have access to update this vendor commodities');
   }
 };
-
 
 module.exports.checkAdminAccess = function(req, res, next){
 	authenticate(req, res, next);
@@ -135,12 +116,7 @@ module.exports.checkAdminAccess = function(req, res, next){
         req.user = creds.user;
         next();
       }else{
-        res.status(401);
-        res.json({
-          "code: ": 102,
-          "localizedMessage": "you do not have access to view this list"
-        });
-        return;
+        Utilities.errResponse(err, res, 401, 103,'you do not have access to view this list');
       }
     }
     });

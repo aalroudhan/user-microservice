@@ -1,12 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const jwtauth = require('../config/jwtauth');
+const appRoot = require('app-root-path');
+const jwtauth = require(`${appRoot}/config/jwtauth`);
 const router = express.Router();
-const User = require('../models/user.model');
+const User = require(`${appRoot}/models/user.model`);
 
 
 // Require the controllers WHICH WE DID NOT CREATE YET!!
-const controller = require('../controllers/user.controller');
+const controller = require(`${appRoot}/controllers/user.controller`);
 
 
 router.post('/create', controller.create);

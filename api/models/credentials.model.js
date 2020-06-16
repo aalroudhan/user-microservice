@@ -44,10 +44,10 @@ CredentialsSchema.methods.generateJwt = function() {
   return jwt.sign({
     _id: this.user,
     email: this.local.username,
-    email: this.local.fullname,
+    name: this.local.fullname,
     roles: this.roles,
     exp: parseInt(expiry.getTime() / 1000),
-  }, 'YOUR_SECRET_STRING'); // DO NOT KEEP YOUR SECRET IN THE CODE!
+  }, process.env.JWT_SECRET || 'YOUR_SECRET_STRING'); // DO NOT KEEP YOUR SECRET IN THE CODE!
 };
 
 CredentialsSchema.index({'local.username': 'text'});

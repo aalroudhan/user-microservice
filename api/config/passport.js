@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const Creds = mongoose.model('Credentials');
 module.exports = function(passport) {
   // Only during the authentication to specify what user information should be stored in the session.
-
+  console.log(passport)
   passport.use('local',new LocalStrategy({
       usernameField: 'email',
       passwordField: 'password',
       passReqToCallback : true
     },
     function(req, username, password, done) {
+      
       Creds.findOne({ 'local.username': username }).
       populate('user').exec( function (err, creds) {
         if (err) { return done(err); }

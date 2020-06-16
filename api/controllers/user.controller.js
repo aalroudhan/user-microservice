@@ -3,6 +3,8 @@ const User = require('../models/user.model');
 const Creds = require('../models/credentials.model');
 const UserImg = require('../models/userImg.model');
 const db = require("mongoose");
+const appRoot = require('app-root-path');
+const Utilities = require(`${appRoot}/utility/utilities`);
 const multer  = require('multer');
 
 var maxSize = 10 * 1000 * 1000;
@@ -11,13 +13,7 @@ var upload = multer({limits: { fileSize: maxSize }}).single('uploadedFile');
 exports.create = function (req, res) {
   upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
-      res.status(401);
-      res.json({
-        "code: ": 201,
-        "localizedMessage": "",
-        "error": err.message
-      });
-      throw err
+      Utilities.errResponse(err, res, 401, 201, err.message);
       // A Multer error occurred when uploading.
     }else{
       
@@ -57,17 +53,10 @@ exports.create = function (req, res) {
         return;
 
       }catch(err){
-        Creds.deleteOne(creds, errorCheck);
-        User.deleteOne(user, errorCheck);
-        UserImg.deleteOne(userImg , errorCheck);
-
-        res.status(403)
-        res.send({
-          "code": 205,
-          "localizedMessage": "unable to create user.",
-          "error":err.message
-        });
-        throw err;
+        Creds.deleteOne(creds);
+        User.deleteOne(user);
+        UserImg.deleteOne(userImg);
+        Utilities.errResponse(err, res, 401, 205,'unable to create user.');
       }
     }
   });
@@ -75,35 +64,23 @@ exports.create = function (req, res) {
 
 exports.login = function(req, res) {
   passport.authenticate('local', function(err, user, info){
-    console.log(user)
-    var token;
+    let token;
     // If Passport throws/catches an error
     if (err) {
-      res.status(403)
-      res.json({
-        "code: ": 205,
-        "localizedMessage": "",
-        "error": err.message
-      });
-      throw err;
+      Utilities.errResponse(err, res, 403, 205,info.message);
+      return false;
     }
     
-    // If a user is found
     if(user){
+      Creds.find().where('_id').equals(user._id)
       Creds.findOne({ user: user._id }, function(err, creds) {
         token = creds.generateJwt();
-        res.send.json({
+        res.json({
           "token" : token
         });
       });
     } else {
-      // If user is not found
-      res.status(401);
-      res.json({
-        "code: ": 206,
-        "localizedMessage": "Login Failure"
-      });
-      return false;
+      Utilities.errResponse(err, res, 401, 206,info.message);
     }
   })(req,res);
 };
@@ -130,13 +107,7 @@ exports.search = function(req, res) {
     User.aggregate(query, function(err,result) {
       User.populate(result, {path:'vendors', select:'_id'}, function(err, _document){
         if (err) {
-          res.status(401);
-          res.json({
-          "code: ": 207,
-          "localizedMessage": "",
-          "error": err.message
-        });
-          throw err;
+          Utilities.errResponse(err, res, 401, 207,info.message);
         }
         res.json(result);
         return;
@@ -144,12 +115,8 @@ exports.search = function(req, res) {
       return;
     });
   }else{
+    Utilities.errResponse(err, res, 401, 207,'Please submit a search query');
     res.status(401);
-    res.json({
-      "code: ": 207,
-      "localizedMessage": "",
-      "error": "Please submit a search query"
-    });
   }
 };
 
@@ -157,13 +124,7 @@ exports.img = function(req, res) {
   console.log('here')
   UserImg.findById(req.params.img,function(err,file){
   if (err) {
-    res.status(401);
-    res.json({
-      "code: ": 208,
-      "localizedMessage": "",
-      "error": err.message
-    });
-    throw err;
+    Utilities.errResponse(err, res, 401, 208,'Please submit a search query');
   }
   
   res.set('Cache-Control', 'public, max-age=31557600');
@@ -173,9 +134,5 @@ exports.img = function(req, res) {
 });
 }
 
-let errorCheck = function (err, result){
-  if(err){
-    throw err;
-  }
-}
+
 

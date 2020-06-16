@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const winston = require('./config/winston');
 const router = express.Router();
 const cors = require('cors');
-
+const defaults = require('./config/defaults');
 
 require('./models/db');
 require('./config/passport')(passport);
@@ -16,7 +16,7 @@ require('./config/passport')(passport);
 const app = express();
 
 
-app.set('jwtTokenSecret', 'YOUR_SECRET_STRING');
+app.set('jwtTokenSecret', process.env.JWT_SECRET || 'YOUR_SECRET_STRING');
 app.use(morgan('combined', { stream: winston.stream }));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -69,22 +69,20 @@ app.use(function(err, req, res, next) {
   });
 });
 
-let port  = process.env.APP_PORT || 4001;
+let port  = process.env.APP_PORT || defaults.port;
 
 app.listen(port, () => {
-    console.log('Server is up and running on port number ' + port);
+    console.log(`Server is up and running on port number ${port}`);
 });
 
 
 process.on('unhandledRejection', (reason, p) => {
   winston.error(`{error: ${reason}`)
 });
-process.on('uncaughtException', function (err) {
-  console.log('Caught exception: ', err);
+process.on('uncaughtException', function (reason, p) {
+  winston.error(`Caught exception: ${reason}`);
 });
 
-setTimeout(function () {
-  console.log('This will still run.');
-}, 500);
+
 
 module.exports = app;
