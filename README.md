@@ -1,6 +1,6 @@
 # user-microservice
 
-# User Nicroservice
+# User Microservice
 
 Simple Microservice for User creation/authentication in Node, express and mongoose.
 
