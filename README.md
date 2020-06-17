@@ -14,6 +14,12 @@ Download the repository and run
 npm install
 ```
 
+Then
+
+```bash
+nodemon server
+```
+
 
 ## Defaults
 the service makes use of global variables. If they don't exist values from the config/defaults file will be used.
