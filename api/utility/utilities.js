@@ -1,4 +1,4 @@
-const defaults = {
+const utilities = {
     port:3000,
     db:'localhost:27017' ,
     errResponse: function(err, res, statusCode, errCode ,localMSG){        
@@ -16,4 +16,4 @@ const defaults = {
         return false;
       }
 }
-module.exports = defaults;
+module.exports = utilities;

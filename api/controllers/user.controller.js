@@ -13,10 +13,11 @@ var upload = multer({limits: { fileSize: maxSize }}).single('uploadedFile');
 exports.create = function (req, res) {
   upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
+
       Utilities.errResponse(err, res, 401, 201, err.message);
-      // A Multer error occurred when uploading.
+
     }else{
-      
+
       const session = await db.startSession();
       session.startTransaction();
       let creds = new Creds();  
@@ -24,9 +25,12 @@ exports.create = function (req, res) {
       let userImg = new UserImg();
 
       try{
+        user.fullname= req.body.fullname;
+        user.email= req.body.email;
+        await user.save();
 
         if(req.file){
-          userImg.name = user.name;
+          userImg.name = user.fullname;
           userImg.img.contentType = req.file.mimetype;
           userImg.img.data = req.file.buffer;
           userImg.user = user._id;
@@ -39,18 +43,14 @@ exports.create = function (req, res) {
         creds.local.hashedPassword= creds.setPassword(req.body.password);
         creds.user = user._id;
         await creds.save();
-
-        user.fullname= req.body.fullname;
-        user.email= req.body.email;
         
-        await user.save();
-        
-
         token = creds.generateJwt();
-        res.send({
-          "token" : token
-        });
+        if(req.body.email)
+          res.send({
+            "token" : token
+          });
         return;
+        
 
       }catch(err){
         Creds.deleteOne(creds);

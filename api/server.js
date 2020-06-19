@@ -7,14 +7,15 @@ const winston = require('./config/winston');
 const router = express.Router();
 const cors = require('cors');
 const defaults = require('./config/defaults');
+const gateway= require('./utility/gateway');
 
 require('./models/db');
 require('./config/passport')(passport);
+;
 
 
 
 const app = express();
-
 
 app.set('jwtTokenSecret', process.env.JWT_SECRET || 'YOUR_SECRET_STRING');
 app.use(morgan('combined', { stream: winston.stream }));
@@ -27,6 +28,13 @@ app.use(passport.initialize());
 const user = require('./routes/user.route');
 
 app.use('/api/user', user);
+app.use('/api/:service', (req, res) => {
+  console.log('in here')
+  let service = req.params.service;
+  if(service != 'user'){
+    gateway.proxy(service, req,res);
+  }
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -43,6 +51,8 @@ if (err.name === 'UnauthorizedError') {
   res.status(401);
   winston.error(`${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`)
   res.json({"message" : err.name + ": " + err.message});
+}else{
+  next(err);
 }
 });
 
@@ -52,7 +62,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
       res.status(err.status || 500);
       winston.error(`${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`)
-      res.render('error', {
+      res.json({
           message: err.message,
           error: err
       });
@@ -63,7 +73,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  res.render('error', {
+  res.json({
       message: err.message,
       error: {}
   });
@@ -76,12 +86,12 @@ app.listen(port, () => {
 });
 
 
-process.on('unhandledRejection', (reason, p) => {
-  winston.error(`{error: ${reason}`)
-});
-process.on('uncaughtException', function (reason, p) {
-  winston.error(`Caught exception: ${reason}`);
-});
+// process.on('unhandledRejection', (reason, p) => {
+//   winston.error(`{error: ${reason}`)
+// });
+// process.on('uncaughtException', function (reason, p) {
+//   winston.error(`Caught exception: ${reason}`);
+// });
 
 
 
