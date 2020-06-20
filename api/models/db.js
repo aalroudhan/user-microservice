@@ -3,7 +3,7 @@ const appRoot = require('app-root-path');
 const defaults = require(`${appRoot}/config/defaults`)
 
 let gracefulShutdown;
-const  dbURI = `mongodb://${process.env.APP_DB || defaults.db}/work`
+const  dbURI = `mongodb://${process.env[`${defaults.SERVICE}_APP_DB`] || defaults.APP_DB}/work`
 
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useNewUrlParser', true);

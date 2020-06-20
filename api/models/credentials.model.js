@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const appRoot = require('app-root-path');
+const defaults = require(`${appRoot}/config/defaults`);
 
 const CredentialsSchema = new mongoose.Schema({
 local:{
@@ -47,7 +49,7 @@ CredentialsSchema.methods.generateJwt = function() {
     name: this.local.fullname,
     roles: this.roles,
     exp: parseInt(expiry.getTime() / 1000),
-  }, process.env.JWT_SECRET || 'YOUR_SECRET_STRING'); // DO NOT KEEP YOUR SECRET IN THE CODE!
+  }, process.env[`${defaults.SERVICE}_JWT_SECRET`] || defaults.JWT_SECRET); // DO NOT KEEP YOUR SECRET IN THE CODE!
 };
 
 CredentialsSchema.index({'local.username': 'text'});

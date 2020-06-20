@@ -3,33 +3,32 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const morgan = require('morgan');
-const winston = require('./config/winston');
+const appRoot = require('app-root-path');
+const defaults = require(`${appRoot}/config/defaults`)
+const winston = require(`${appRoot}/config/winston`);
 const router = express.Router();
 const cors = require('cors');
-const defaults = require('./config/defaults');
-const gateway= require('./utility/gateway');
+const gateway= require(`${appRoot}/utility/gateway`);
+const jwt = require(`${appRoot}/config/jwtauth`);
+
 
 require('./models/db');
 require('./config/passport')(passport);
-;
-
-
 
 const app = express();
 
-app.set('jwtTokenSecret', process.env.JWT_SECRET || 'YOUR_SECRET_STRING');
+//app.set('jwtTokenSecret', process.env.JWT_SECRET || defaults.JWT_SECRET);
 app.use(morgan('combined', { stream: winston.stream }));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
 
 app.use(passport.initialize());
-
-const user = require('./routes/user.route');
+const user = require(`${appRoot}/routes/user.route`);
 
 app.use('/api/user', user);
-app.use('/api/:service', (req, res) => {
-  console.log('in here')
+app.use('/gw/api/:service', (req, res) => {
+  let auth = jwt.auth(req,res);
   let service = req.params.service;
   if(service != 'user'){
     gateway.proxy(service, req,res);
@@ -79,7 +78,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
-let port  = process.env.APP_PORT || defaults.port;
+let port  = process.env[`${defaults.SERVICE}_APP_PORT`] || defaults.APP_PORT;
 
 app.listen(port, () => {
     console.log(`Server is up and running on port number ${port}`);

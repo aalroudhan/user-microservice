@@ -12,6 +12,14 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     match: [/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Please enter a valid email'],
   },
+  private: {
+    type: Boolean,
+    default: false
+  },
+  audience: [{
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: this
+  }],
   flagged: {
     type: Boolean,
     default: false
@@ -26,12 +34,6 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.index({'fullname': 'text', 'email': 'text'});
-UserSchema.virtual('vendors', {
-  ref: 'Vendor',
-  localField: '_id', 
-  foreignField: 'users.user', 
-  justOne: false
-});
 
 module.exports = mongoose.model('User', UserSchema);
 

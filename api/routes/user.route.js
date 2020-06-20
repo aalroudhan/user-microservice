@@ -7,9 +7,7 @@ const User = require(`${appRoot}/models/user.model`);
 
 
 // Require the controllers WHICH WE DID NOT CREATE YET!!
-const controller = require(`${appRoot}/controllers/user.controller`);
-
-
+const controller = require(`../controllers/user.controller`);
 router.post('/create', controller.create);
 router.post('/login', controller.login);
 router.get('/profile/:user?', jwtauth.checkUserAccess, controller.profile);

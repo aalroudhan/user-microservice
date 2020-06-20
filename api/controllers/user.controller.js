@@ -17,9 +17,7 @@ exports.create = function (req, res) {
       Utilities.errResponse(err, res, 401, 201, err.message);
 
     }else{
-
-      const session = await db.startSession();
-      session.startTransaction();
+      console.log(req)
       let creds = new Creds();  
       let user = new User();
       let userImg = new UserImg();
@@ -46,7 +44,7 @@ exports.create = function (req, res) {
         
         token = creds.generateJwt();
         if(req.body.email)
-          res.send({
+          res.json({
             "token" : token
           });
         return;
@@ -60,6 +58,7 @@ exports.create = function (req, res) {
       }
     }
   });
+  return;
 };
 
 exports.login = function(req, res) {
@@ -86,9 +85,7 @@ exports.login = function(req, res) {
 };
 
 exports.profile = function(req, res) {
-    console.log(req.ip)
-    
-    res.send.json(req.user);
+    res.send(req.user);
 };
 
 exports.search = function(req, res) {
@@ -116,12 +113,10 @@ exports.search = function(req, res) {
     });
   }else{
     Utilities.errResponse(err, res, 401, 207,'Please submit a search query');
-    res.status(401);
   }
 };
 
 exports.img = function(req, res) {
-  console.log('here')
   UserImg.findById(req.params.img,function(err,file){
   if (err) {
     Utilities.errResponse(err, res, 401, 208,'Please submit a search query');
