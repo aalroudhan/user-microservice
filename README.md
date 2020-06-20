@@ -6,10 +6,10 @@ Simple Microservice for User creation/authentication in Node, express and mongoo
 
 Requires NPM and Mongo. Each service will use it's own schema. by default. you can change that behavior by changing the config/defaults.js 
 
-Download the repository and run
+Download the repository and run the following command in the /api directory
 
 ```bash
-npm install in the /api directory
+npm install 
 ```
 
 Then
