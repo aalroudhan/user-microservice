@@ -1,17 +1,15 @@
 # user-microservice
 
-# User Microservice
-
 Simple Microservice for User creation/authentication in Node, express and mongoose.
 
 ## Installation
 
-Requires NPM and Mongo
+Requires NPM and Mongo. Each service will use it's own schema. by default. you can change that behavior by changing the config/defaults.js 
 
 Download the repository and run
 
 ```bash
-npm install
+npm install in the /api directory
 ```
 
 Then
@@ -27,7 +25,7 @@ the service makes use of global variables. If they don't exist values from the c
 ## User Container
 The application can be run as a docker container. The environment variabe are in the  .env
 
-To build the container run following command in the 
+To build the container run following command in /api directory
 
 ```bash
 docker-compose up
